@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PomodoroTime</string>
+    <string name="credits">©Pomodoro Time Alpha Ver.\nCreated by Elvis Bui</string>
 </resources>

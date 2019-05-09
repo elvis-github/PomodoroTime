@@ -22,7 +22,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String END_TIME = "endTime";
 
     private TextView mTextViewCountDown;
+
     private Button mButtonStartPause;
+    private Button mButtonShort;
+    private Button mButtonLong;
     private Button mButtonReset;
 
     private CountDownTimer mCountDownTimer;
@@ -41,7 +44,9 @@ public class MainActivity extends AppCompatActivity {
         mTextViewCountDown = findViewById(R.id.countdown);
         mButtonStartPause = findViewById(R.id.startPauseButton);
         mButtonReset = findViewById(R.id.resetButton);
-        
+        mButtonShort = findViewById(R.id.shortButton);
+        mButtonLong = findViewById(R.id.longButton);
+
         mButtonStartPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
