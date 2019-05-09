@@ -11,8 +11,11 @@ import android.widget.TextView;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    private static final long START_TIME_IN_MILLIS = 1500000 ;
+    private static final long POMODORO = 1500000;
+    private static final long SHORT_BREAK = 600000;
+    private static final long LONG_BREAK = 900000;
 
+    private static final String START_TIME = "startTimeInMillis";
     private static final String PREFS = "prefs";
     private static final String MILLIS_LEFT = "millisLeft";
     private static final String TIMER_RUNNING = "timerRunning";
@@ -24,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     private CountDownTimer mCountDownTimer;
     private boolean mTimerRunning;
-    
+
+    private long mStartTimeInMillis;
     private long mTimeLeftInMillis;
     private long mEndTime;
     
@@ -57,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+    private void setTimer(long milliseconds){
+        mStartTimeInMillis = milliseconds;
+        resetTimer();
+    }
+
     private void startTimer() {
 
         mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
@@ -94,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void resetTimer() {
-        mTimeLeftInMillis = START_TIME_IN_MILLIS;
+        mTimeLeftInMillis = mStartTimeInMillis;
         updateCountDownText();
         updateButtons();
     }
@@ -111,13 +121,13 @@ public class MainActivity extends AppCompatActivity {
                 mButtonStartPause.setVisibility(View.VISIBLE);
             }
 
-            if(mTimeLeftInMillis < START_TIME_IN_MILLIS){
+            if(mTimeLeftInMillis < mStartTimeInMillis){
                 mButtonReset.setVisibility(View.VISIBLE);
             } else {
                 mButtonReset.setVisibility(View.INVISIBLE);
             }
 
-            if(mTimeLeftInMillis == START_TIME_IN_MILLIS){
+            if(mTimeLeftInMillis == mStartTimeInMillis){
                 mButtonStartPause.setText("Start");
             }
         }
@@ -129,20 +139,24 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
 
+        editor.putLong(START_TIME, mStartTimeInMillis);
         editor.putLong(MILLIS_LEFT, mTimeLeftInMillis);
         editor.putBoolean(TIMER_RUNNING, mTimerRunning);
         editor.putLong(END_TIME, mEndTime);
 
         editor.apply();
 
-        mCountDownTimer.cancel();
+        if(mCountDownTimer != null){
+            mCountDownTimer.cancel();
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
-        mTimeLeftInMillis = prefs.getLong(MILLIS_LEFT, START_TIME_IN_MILLIS);
+        mStartTimeInMillis = prefs.getLong(START_TIME, POMODORO);
+        mTimeLeftInMillis = prefs.getLong(MILLIS_LEFT, mStartTimeInMillis);
         mTimerRunning = prefs.getBoolean(TIMER_RUNNING, false);
 
         updateCountDownText();
