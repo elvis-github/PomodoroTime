@@ -7,13 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cde98f4f-a682-4f84-a719-6288f0e61063" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/5.1.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/5.1.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/dev/elvisbui/pomodorotime/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/dev/elvisbui/pomodorotime/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,8 +27,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/dev/elvisbui/pomodorotime/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="762">
-              <caret line="96" column="43" selection-start-line="96" selection-start-column="43" selection-end-line="96" selection-end-column="43" />
+            <state relative-caret-position="362">
+              <caret line="71" column="51" lean-forward="true" selection-start-line="71" selection-start-column="51" selection-end-line="71" selection-end-column="51" />
               <folding>
                 <element signature="e#1021#1283#0" expanded="true" />
                 <element signature="e#1282#1283#0" expanded="true" />
@@ -68,9 +62,8 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="54" />
-    <option name="y" value="-8" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="984" />
     <option name="width" value="943" />
     <option name="height" value="1087" />
   </component>
@@ -180,7 +173,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="54" y="-8" width="1874" height="1096" extended-state="6" />
+    <frame x="984" y="0" width="943" height="1087" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" weight="0.6772367" />
@@ -220,8 +213,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/dev/elvisbui/pomodorotime/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="762">
-          <caret line="96" column="43" selection-start-line="96" selection-start-column="43" selection-end-line="96" selection-end-column="43" />
+        <state relative-caret-position="362">
+          <caret line="71" column="51" lean-forward="true" selection-start-line="71" selection-start-column="51" selection-end-line="71" selection-end-column="51" />
           <folding>
             <element signature="e#1021#1283#0" expanded="true" />
             <element signature="e#1282#1283#0" expanded="true" />

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    private static final long START_TIME_IN_MILLIS = 6000;
+    private static final long START_TIME_IN_MILLIS = 60000;
 
     private TextView mTextViewCountDown;
     private Button mButtonStartPause;
@@ -63,15 +63,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 mTimerRunning = false;
-                mButtonStartPause.setText("Start");
-                mButtonStartPause.setVisibility(View.INVISIBLE);
-                mButtonReset.setVisibility(View.VISIBLE);
+                updateButtons();
             }
         }.start();
 
         mTimerRunning = true;
-        mButtonStartPause.setText("Pause");
-        mButtonReset.setVisibility(View.INVISIBLE);
+        updateButtons();
     }
 
     private void updateCountDownText() {
@@ -83,18 +80,62 @@ public class MainActivity extends AppCompatActivity {
         mTextViewCountDown.setText(timeLeftFormatted);
     }
 
+
+
     private void pauseTimer() {
         mCountDownTimer.cancel();
         mTimerRunning = false;
-        mButtonStartPause.setText("Resume");
-        mButtonReset.setVisibility(View.VISIBLE);
+        updateButtons();
     }
 
     private void resetTimer() {
         mTimeLeftInMillis = START_TIME_IN_MILLIS;
         updateCountDownText();
-        mButtonReset.setVisibility(View.INVISIBLE);
-        mButtonStartPause.setText("Start");
-        mButtonStartPause.setVisibility(View.VISIBLE);
+        updateButtons();
+    }
+
+    private void updateButtons(){
+        if(mTimerRunning){
+            mButtonReset.setVisibility(View.INVISIBLE);
+            mButtonStartPause.setText("Pause");
+        } else {
+            mButtonStartPause.setText("Resume");
+            if(mTimeLeftInMillis < 1000){
+                mButtonStartPause.setVisibility(View.INVISIBLE);
+            } else {
+                mButtonStartPause.setVisibility(View.VISIBLE);
+            }
+
+            if(mTimeLeftInMillis < START_TIME_IN_MILLIS){
+                mButtonReset.setVisibility(View.VISIBLE);
+            } else {
+                mButtonReset.setVisibility(View.INVISIBLE);
+            }
+
+            if(mTimeLeftInMillis == START_TIME_IN_MILLIS){
+                mButtonStartPause.setText("Start");
+            }
+        }
+    }
+
+    //Save Instance States
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong("millisLeft", mTimeLeftInMillis);
+        outState.putBoolean("timerRunning", mTimerRunning);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mTimeLeftInMillis = savedInstanceState.getLong("millisLeft");
+        mTimerRunning = savedInstanceState.getBoolean("timerRunning");
+        updateCountDownText();
+        updateButtons();
+
+        if(mTimerRunning){
+            startTimer();
+        }
     }
 }
