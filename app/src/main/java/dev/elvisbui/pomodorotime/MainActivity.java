@@ -1,5 +1,6 @@
 package dev.elvisbui.pomodorotime;
 
+import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,7 +11,12 @@ import android.widget.TextView;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    private static final long START_TIME_IN_MILLIS = 60000;
+    private static final long START_TIME_IN_MILLIS = 1500000 ;
+
+    private static final String PREFS = "prefs";
+    private static final String MILLIS_LEFT = "millisLeft";
+    private static final String TIMER_RUNNING = "timerRunning";
+    private static final String END_TIME = "endTime";
 
     private TextView mTextViewCountDown;
     private Button mButtonStartPause;
@@ -19,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private CountDownTimer mCountDownTimer;
     private boolean mTimerRunning;
     
-    private long mTimeLeftInMillis = START_TIME_IN_MILLIS;
+    private long mTimeLeftInMillis;
     private long mEndTime;
     
     
@@ -50,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        updateCountDownText();
     }
     private void startTimer() {
 
@@ -81,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
 
         mTextViewCountDown.setText(timeLeftFormatted);
     }
-
-
 
     private void pauseTimer() {
         mCountDownTimer.cancel();
@@ -120,27 +123,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Save Instance States
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putLong("millisLeft", mTimeLeftInMillis);
-        outState.putBoolean("timerRunning", mTimerRunning);
-        outState.putLong("endTime", mEndTime);
+    protected void onStop(){
+        super.onStop();
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        editor.putLong(MILLIS_LEFT, mTimeLeftInMillis);
+        editor.putBoolean(TIMER_RUNNING, mTimerRunning);
+        editor.putLong(END_TIME, mEndTime);
+
+        editor.apply();
+
+        mCountDownTimer.cancel();
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        mTimeLeftInMillis = savedInstanceState.getLong("millisLeft");
-        mTimerRunning = savedInstanceState.getBoolean("timerRunning");
+    protected void onStart() {
+        super.onStart();
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        mTimeLeftInMillis = prefs.getLong(MILLIS_LEFT, START_TIME_IN_MILLIS);
+        mTimerRunning = prefs.getBoolean(TIMER_RUNNING, false);
+
         updateCountDownText();
         updateButtons();
 
         if(mTimerRunning){
-            mEndTime = savedInstanceState.getLong("endTime");
+            mEndTime = prefs.getLong(END_TIME, 0);
             mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
-            startTimer();
+            if(mTimeLeftInMillis < 0){
+                mTimeLeftInMillis = 0;
+                mTimerRunning = false;
+                updateCountDownText();
+                updateButtons();
+            } else {
+                startTimer();
+            }
         }
     }
 }
