@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mTimerRunning;
     
     private long mTimeLeftInMillis = START_TIME_IN_MILLIS;
-    
+    private long mEndTime;
     
     
     @Override
@@ -53,7 +53,9 @@ public class MainActivity extends AppCompatActivity {
         updateCountDownText();
     }
     private void startTimer() {
-        mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 1000) {
+
+        mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
+        mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 500) {
             @Override
             public void onTick(long millisUntilFinished) {
                 mTimeLeftInMillis = millisUntilFinished;
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
             mButtonStartPause.setText("Pause");
         } else {
             mButtonStartPause.setText("Resume");
-            if(mTimeLeftInMillis < 1000){
+            if(mTimeLeftInMillis < 500){
                 mButtonStartPause.setVisibility(View.INVISIBLE);
             } else {
                 mButtonStartPause.setVisibility(View.VISIBLE);
@@ -124,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putLong("millisLeft", mTimeLeftInMillis);
         outState.putBoolean("timerRunning", mTimerRunning);
+        outState.putLong("endTime", mEndTime);
     }
 
     @Override
@@ -135,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
         updateButtons();
 
         if(mTimerRunning){
+            mEndTime = savedInstanceState.getLong("endTime");
+            mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
             startTimer();
         }
     }
