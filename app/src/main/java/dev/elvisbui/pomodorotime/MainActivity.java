@@ -74,6 +74,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mButtonLong.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setTimer(LONG_BREAK);
+                startTimer();
+            }
+        });
     }
 
     private void setTimer(long milliseconds){
@@ -127,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
         if(mTimerRunning){
             mButtonReset.setVisibility(View.INVISIBLE);
             mButtonShort.setVisibility(View.INVISIBLE);
+            mButtonLong.setVisibility(View.INVISIBLE);
             mButtonStartPause.setText("Pause");
         } else {
             mButtonStartPause.setText("Resume");
@@ -145,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
             if(mTimeLeftInMillis == mStartTimeInMillis){
                 mButtonStartPause.setText("Start");
                 mButtonShort.setVisibility(View.VISIBLE);
+                mButtonLong.setVisibility(View.VISIBLE);
             }
         }
     }
