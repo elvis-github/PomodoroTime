@@ -140,12 +140,16 @@ public class MainActivity extends AppCompatActivity {
             mButtonStartPause.setText("Resume");
             if(mTimeLeftInMillis < 500){
                 mButtonStartPause.setVisibility(View.INVISIBLE);
+                mButtonShort.setVisibility(View.INVISIBLE);
+                mButtonLong.setVisibility(View.INVISIBLE);
             } else {
                 mButtonStartPause.setVisibility(View.VISIBLE);
             }
 
             if(mTimeLeftInMillis < mStartTimeInMillis){
                 mButtonReset.setVisibility(View.VISIBLE);
+                mButtonShort.setVisibility(View.INVISIBLE);
+                mButtonLong.setVisibility(View.INVISIBLE);
             } else {
                 mButtonReset.setVisibility(View.INVISIBLE);
             }
