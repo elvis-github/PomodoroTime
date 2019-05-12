@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mButtonReset;
 
     private CountDownTimer mCountDownTimer;
+
     private boolean mTimerRunning;
 
     private long mStartTimeInMillis;
@@ -46,10 +47,10 @@ public class MainActivity extends AppCompatActivity {
         mButtonReset = findViewById(R.id.resetButton);
         mButtonShort = findViewById(R.id.shortButton);
         mButtonLong = findViewById(R.id.longButton);
-
         mButtonStartPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if(mTimerRunning){
                     pauseTimer();
                 } else {
@@ -61,7 +62,15 @@ public class MainActivity extends AppCompatActivity {
         mButtonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetTimer();
+                setTimer(POMODORO);
+            }
+        });
+
+        mButtonShort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setTimer(SHORT_BREAK);
+                startTimer();
             }
         });
 
@@ -117,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateButtons(){
         if(mTimerRunning){
             mButtonReset.setVisibility(View.INVISIBLE);
+            mButtonShort.setVisibility(View.INVISIBLE);
             mButtonStartPause.setText("Pause");
         } else {
             mButtonStartPause.setText("Resume");
@@ -134,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(mTimeLeftInMillis == mStartTimeInMillis){
                 mButtonStartPause.setText("Start");
+                mButtonShort.setVisibility(View.VISIBLE);
             }
         }
     }
