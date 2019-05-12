@@ -50,9 +50,11 @@ public class MainActivity extends AppCompatActivity {
         mButtonStartPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if(mTimerRunning){
                     pauseTimer();
                 } else {
+                    setTimer(POMODORO);
                     startTimer();
                 }
             }
@@ -62,6 +64,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 resetTimer();
+            }
+        });
+
+        mButtonShort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setTimer(SHORT_BREAK);
+                startTimer();
             }
         });
 
@@ -117,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateButtons(){
         if(mTimerRunning){
             mButtonReset.setVisibility(View.INVISIBLE);
+            mButtonShort.setVisibility(View.INVISIBLE);
             mButtonStartPause.setText("Pause");
         } else {
             mButtonStartPause.setText("Resume");
@@ -134,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(mTimeLeftInMillis == mStartTimeInMillis){
                 mButtonStartPause.setText("Start");
+                mButtonShort.setVisibility(View.VISIBLE);
             }
         }
     }
