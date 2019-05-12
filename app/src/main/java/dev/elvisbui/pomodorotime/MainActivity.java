@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mButtonReset;
 
     private CountDownTimer mCountDownTimer;
+
     private boolean mTimerRunning;
 
     private long mStartTimeInMillis;
@@ -46,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
         mButtonReset = findViewById(R.id.resetButton);
         mButtonShort = findViewById(R.id.shortButton);
         mButtonLong = findViewById(R.id.longButton);
-
         mButtonStartPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
                 if(mTimerRunning){
                     pauseTimer();
                 } else {
-                    setTimer(POMODORO);
                     startTimer();
                 }
             }
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetTimer();
+                setTimer(POMODORO);
             }
         });
 
