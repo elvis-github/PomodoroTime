@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -47,13 +48,17 @@ public class MainActivity extends AppCompatActivity {
         mButtonReset = findViewById(R.id.resetButton);
         mButtonShort = findViewById(R.id.shortButton);
         mButtonLong = findViewById(R.id.longButton);
+
         mButtonStartPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if(mTimerRunning){
+                    Toast.makeText(MainActivity.this, "Timer Paused!", Toast.LENGTH_SHORT).show();
                     pauseTimer();
                 } else {
+                    if(mStartTimeInMillis == POMODORO)
+                        Toast.makeText(MainActivity.this, "Pomodoro Started!", Toast.LENGTH_SHORT).show();
                     startTimer();
                 }
             }
@@ -62,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "Timer Reset!", Toast.LENGTH_SHORT).show();
                 setTimer(POMODORO);
             }
         });
@@ -70,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setTimer(SHORT_BREAK);
+                Toast.makeText(MainActivity.this, "Short Break Started!", Toast.LENGTH_SHORT).show();
                 startTimer();
             }
         });
@@ -78,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setTimer(LONG_BREAK);
+                Toast.makeText(MainActivity.this, "Long Break Started!", Toast.LENGTH_SHORT).show();
                 startTimer();
             }
         });
@@ -140,12 +148,16 @@ public class MainActivity extends AppCompatActivity {
             mButtonStartPause.setText("Resume");
             if(mTimeLeftInMillis < 500){
                 mButtonStartPause.setVisibility(View.INVISIBLE);
+                mButtonShort.setVisibility(View.INVISIBLE);
+                mButtonLong.setVisibility(View.INVISIBLE);
             } else {
                 mButtonStartPause.setVisibility(View.VISIBLE);
             }
 
             if(mTimeLeftInMillis < mStartTimeInMillis){
                 mButtonReset.setVisibility(View.VISIBLE);
+                mButtonShort.setVisibility(View.INVISIBLE);
+                mButtonLong.setVisibility(View.INVISIBLE);
             } else {
                 mButtonReset.setVisibility(View.INVISIBLE);
             }
