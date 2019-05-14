@@ -19,7 +19,7 @@ import static dev.elvisbui.pomodorotime.NotificationsWrapper.CHANNEL_1_ID;
 
 public class MainActivity extends AppCompatActivity {
     private static final long POMODORO = 1500000;           //25 Minutes = 1500000
-    private static final long SHORT_BREAK = 600000;         //10 MInutes = 600000
+    private static final long SHORT_BREAK = 600000;         //10 Minutes = 600000
     private static final long LONG_BREAK = 900000;
 
     private static final String START_TIME = "startTimeInMillis";
@@ -199,13 +199,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendOnChannel1(){
+        String content = "Your time is up!";
+        if(!mPomodoro)
+            content = "Your break is up!";
+
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.ic_alarm)
                 .setContentTitle("PomodoroTime")
-                .setContentText("Your time is up!")
+                .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .build();
+        notificationMananger.notify(1, notification);
     }
 
     @Override
