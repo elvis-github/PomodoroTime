@@ -25,6 +25,7 @@ public class NotificationsWrapper extends Application {
                     NotificationManager.IMPORTANCE_HIGH
             );
             channel1.setDescription("This channel shows your alarms");
+            channel1.setSound(null, null);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel1);
         }

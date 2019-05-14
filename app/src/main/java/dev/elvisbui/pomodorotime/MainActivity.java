@@ -20,7 +20,7 @@ import static dev.elvisbui.pomodorotime.NotificationsWrapper.CHANNEL_1_ID;
 public class MainActivity extends AppCompatActivity {
     private static final long POMODORO = 1500000;           //25 Minutes = 1500000
     private static final long SHORT_BREAK = 600000;         //10 Minutes = 600000
-    private static final long LONG_BREAK = 900000;
+    private static final long LONG_BREAK = 900000;          //15 Minutes = 900000
 
     private static final String START_TIME = "startTimeInMillis";
     private static final String PREFS = "prefs";
@@ -206,6 +206,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * sendOnChannel1()
+     * Sends a message on Notification Channel 1 - Alarms
+     * notifying user if their pomodoro timer or break is
+     * up
+     */
     public void sendOnChannel1(){
         String content = "Your time is up!";
         if(!mPomodoro)
@@ -217,6 +223,8 @@ public class MainActivity extends AppCompatActivity {
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setSound(null,0)
+                .setAutoCancel(true)
                 .build();
         notificationMananger.notify(1, notification);
     }
