@@ -1,7 +1,9 @@
 package dev.elvisbui.pomodorotime;
 
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.CountDownTimer;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,7 +14,9 @@ import android.widget.Toast;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    private static final long POMODORO = 1500000;
+
+
+    private static final long POMODORO = 1500000;           //25 Minutes = 1500000
     private static final long SHORT_BREAK = 600000;
     private static final long LONG_BREAK = 900000;
 
@@ -37,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private long mTimeLeftInMillis;
     private long mEndTime;
     
-    
+    private MediaPlayer mAlarm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
-
+        mAlarm = MediaPlayer.create(this, R.raw.pomodoro_alarm);
         mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
         mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 500) {
             @Override
@@ -108,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
+                mAlarm.start();
                 mTimerRunning = false;
                 updateButtons();
             }
@@ -133,6 +139,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void resetTimer() {
+        if(mAlarm != null){
+            mAlarm.stop();
+            mAlarm.release();
+            mAlarm = null;
+        }
         mTimeLeftInMillis = mStartTimeInMillis;
         updateCountDownText();
         updateButtons();
