@@ -14,10 +14,8 @@ import android.widget.Toast;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-
-
     private static final long POMODORO = 1500000;           //25 Minutes = 1500000
-    private static final long SHORT_BREAK = 600000;
+    private static final long SHORT_BREAK = 600000;         //10 MInutes = 600000
     private static final long LONG_BREAK = 900000;
 
     private static final String START_TIME = "startTimeInMillis";
@@ -34,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private Button mButtonReset;
 
     private CountDownTimer mCountDownTimer;
+
+    private boolean mPomodoro = true;
 
     private boolean mTimerRunning;
 
@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mPomodoro = true;
                 Toast.makeText(MainActivity.this, "Timer Reset!", Toast.LENGTH_SHORT).show();
                 setTimer(POMODORO);
             }
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonShort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mPomodoro = false;
                 setTimer(SHORT_BREAK);
                 Toast.makeText(MainActivity.this, "Short Break Started!", Toast.LENGTH_SHORT).show();
                 startTimer();
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonLong.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mPomodoro = false;
                 setTimer(LONG_BREAK);
                 Toast.makeText(MainActivity.this, "Long Break Started!", Toast.LENGTH_SHORT).show();
                 startTimer();
@@ -102,7 +105,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
-        mAlarm = MediaPlayer.create(this, R.raw.pomodoro_alarm);
+        if(mAlarm == null)
+            if(mPomodoro)
+                mAlarm = MediaPlayer.create(this, R.raw.pomodoro_alarm);
+            else
+                mAlarm = MediaPlayer.create(this, R.raw.break_alarm);
         mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
         mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 500) {
             @Override
