@@ -130,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 mAlarm.start();
+                sendOnChannel1();
                 mTimerRunning = false;
                 updateButtons();
             }
@@ -199,8 +200,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendOnChannel1(){
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
-                .setSmallIcon()
-
+                .setSmallIcon(R.drawable.ic_alarm)
+                .setContentTitle("PomodoroTime")
+                .setContentText("Your time is up!")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .build();
     }
 
     @Override
