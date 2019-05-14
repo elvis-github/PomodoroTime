@@ -20,15 +20,17 @@ import static dev.elvisbui.pomodorotime.NotificationsWrapper.CHANNEL_1_ID;
 public class MainActivity extends AppCompatActivity {
     private static final long POMODORO = 1500000;           //25 Minutes = 1500000
     private static final long SHORT_BREAK = 600000;         //10 Minutes = 600000
-    private static final long LONG_BREAK = 900000;
+    private static final long LONG_BREAK = 900000;          //15 Minutes = 900000
 
     private static final String START_TIME = "startTimeInMillis";
     private static final String PREFS = "prefs";
     private static final String MILLIS_LEFT = "millisLeft";
     private static final String TIMER_RUNNING = "timerRunning";
     private static final String END_TIME = "endTime";
+    private static final String STATUS = "status";
 
     private TextView mTextViewCountDown;
+    private TextView mTextViewStatus;
 
     private Button mButtonStartPause;
     private Button mButtonShort;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonReset = findViewById(R.id.resetButton);
         mButtonShort = findViewById(R.id.shortButton);
         mButtonLong = findViewById(R.id.longButton);
+        mTextViewStatus = findViewById(R.id.status);
 
         notificationMananger = NotificationManagerCompat.from(this);
 
@@ -91,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPomodoro = false;
+                mTextViewStatus.setText("Short Break");
                 setTimer(SHORT_BREAK);
                 Toast.makeText(MainActivity.this, "Short Break Started!", Toast.LENGTH_SHORT).show();
                 startTimer();
@@ -101,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPomodoro = false;
+                mTextViewStatus.setText("Long Break");
                 setTimer(LONG_BREAK);
                 Toast.makeText(MainActivity.this, "Long Break Started!", Toast.LENGTH_SHORT).show();
                 startTimer();
@@ -161,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
             mAlarm.release();
             mAlarm = null;
         }
+
         mTimeLeftInMillis = mStartTimeInMillis;
         updateCountDownText();
         updateButtons();
@@ -192,12 +198,20 @@ public class MainActivity extends AppCompatActivity {
 
             if(mTimeLeftInMillis == mStartTimeInMillis){
                 mButtonStartPause.setText("Start");
+                if(mPomodoro)
+                    mTextViewStatus.setText("Pomodoro");
                 mButtonShort.setVisibility(View.VISIBLE);
                 mButtonLong.setVisibility(View.VISIBLE);
             }
         }
     }
 
+    /**
+     * sendOnChannel1()
+     * Sends a message on Notification Channel 1 - Alarms
+     * notifying user if their pomodoro timer or break is
+     * up
+     */
     public void sendOnChannel1(){
         String content = "Your time is up!";
         if(!mPomodoro)
@@ -209,6 +223,8 @@ public class MainActivity extends AppCompatActivity {
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setSound(null,0)
+                .setAutoCancel(true)
                 .build();
         notificationMananger.notify(1, notification);
     }
@@ -223,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putLong(MILLIS_LEFT, mTimeLeftInMillis);
         editor.putBoolean(TIMER_RUNNING, mTimerRunning);
         editor.putLong(END_TIME, mEndTime);
-
+        editor.putString(STATUS, mTextViewStatus.getText().toString());
         editor.apply();
 
         if(mCountDownTimer != null){
@@ -238,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
         mStartTimeInMillis = prefs.getLong(START_TIME, POMODORO);
         mTimeLeftInMillis = prefs.getLong(MILLIS_LEFT, mStartTimeInMillis);
         mTimerRunning = prefs.getBoolean(TIMER_RUNNING, false);
-
+        mTextViewStatus.setText(prefs.getString(STATUS, "Pomodoro"));
         updateCountDownText();
         updateButtons();
 
