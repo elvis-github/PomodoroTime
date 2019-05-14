@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             mAlarm.release();
             mAlarm = null;
         }
-        mTextViewStatus.setText("Pomodoro");
+
         mTimeLeftInMillis = mStartTimeInMillis;
         updateCountDownText();
         updateButtons();
@@ -198,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
 
             if(mTimeLeftInMillis == mStartTimeInMillis){
                 mButtonStartPause.setText("Start");
+                if(mPomodoro)
+                    mTextViewStatus.setText("Pomodoro");
                 mButtonShort.setVisibility(View.VISIBLE);
                 mButtonLong.setVisibility(View.VISIBLE);
             }
