@@ -1,5 +1,6 @@
 package dev.elvisbui.pomodorotime;
 
+import android.annotation.TargetApi;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,6 +16,7 @@ public class NotificationsWrapper extends Application {
         createNotificationChannel();
     }
 
+    @TargetApi(26)
     private void createNotificationChannel() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel channel1 = new NotificationChannel(
@@ -23,8 +25,8 @@ public class NotificationsWrapper extends Application {
                     NotificationManager.IMPORTANCE_HIGH
             );
             channel1.setDescription("This channel shows your alarms");
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel1);
         }
-
-        NotificationManager manager = getSystemService(NotificationManager.class);
     }
 }
