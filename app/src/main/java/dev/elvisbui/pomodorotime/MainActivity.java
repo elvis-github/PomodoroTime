@@ -22,9 +22,9 @@ import static dev.elvisbui.pomodorotime.NotificationsWrapper.CHANNEL_1_ID;
 
 public class MainActivity extends AppCompatActivity {
                                                             //03 Seconds = 3000
-    private static final long POMODORO = 10000;           //25 Minutes = 1500000
-    private static final long SHORT_BREAK = 3000;         //05 Minutes = 300000
-    private static final long LONG_BREAK = 3000;          //15 Minutes = 900000
+    private static final long POMODORO = 1500000;           //25 Minutes = 1500000
+    private static final long SHORT_BREAK = 300000;         //05 Minutes = 300000
+    private static final long LONG_BREAK = 900000;          //15 Minutes = 900000
 
     private static final String START_TIME = "startTimeInMillis";
     private static final String PREFS = "prefs";
