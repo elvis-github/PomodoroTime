@@ -277,7 +277,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         mStartTimeInMillis = prefs.getLong(START_TIME, POMODORO);
         mTimeLeftInMillis = prefs.getLong(MILLIS_LEFT, mStartTimeInMillis);
