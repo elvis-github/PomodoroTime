@@ -1,5 +1,6 @@
 # PomodoroTime
-A tomato timer app based on the Pomodoro Technique created to as a project to learn more Android Development.
+A tomato timer app based on the Pomodoro Technique created as a project to learn more Android Developmen by an amateur
+android developer.
 
 >Author: Elvis Bui
 
