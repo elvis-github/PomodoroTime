@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.os.CountDownTimer;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -21,7 +22,7 @@ import static dev.elvisbui.pomodorotime.NotificationsWrapper.CHANNEL_1_ID;
 
 public class MainActivity extends AppCompatActivity {
                                                             //03 Seconds = 3000
-    private static final long POMODORO = 3000;           //25 Minutes = 1500000
+    private static final long POMODORO = 10000;           //25 Minutes = 1500000
     private static final long SHORT_BREAK = 3000;         //05 Minutes = 300000
     private static final long LONG_BREAK = 3000;          //15 Minutes = 900000
 
@@ -129,21 +130,24 @@ public class MainActivity extends AppCompatActivity {
                 mAlarm = MediaPlayer.create(this, R.raw.break_alarm);
         mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
         mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 500) {
+
             @Override
             public void onTick(long millisUntilFinished) {
                 mTimeLeftInMillis = millisUntilFinished;
                 updateCountDownText();
+                startService("Timer Started\n" + mTextViewCountDown.getText().toString());
             }
 
             @Override
             public void onFinish() {
-                mAlarm.start();
+                stopService();
                 sendOnChannel1();
+                mAlarm.start();
                 mTimerRunning = false;
                 updateButtons();
             }
         }.start();
-
+        startService("Timer Started");
         mTimerRunning = true;
         updateButtons();
     }
@@ -169,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             mAlarm.release();
             mAlarm = null;
         }
-
+        stopService();
         mTimeLeftInMillis = mStartTimeInMillis;
         updateCountDownText();
         updateButtons();
@@ -209,6 +213,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void startService(String message){
+
+        Intent serviceIntent = new Intent(this, NotificationService.class);
+        serviceIntent.putExtra("inputExtra" , message);
+
+        if(mTimerRunning)
+            serviceIntent.putExtra("timerStatus", true);
+        else
+            serviceIntent.putExtra("timerStatus", false);
+
+        ContextCompat.startForegroundService(this, serviceIntent);
+    }
+
+    public void stopService(){
+        Intent serviceIntent = new Intent(this, NotificationService.class);
+        stopService(serviceIntent);
+    }
+
     /**
      * sendOnChannel1()
      * Sends a message on Notification Channel 1 - Alarms
@@ -234,9 +256,8 @@ public class MainActivity extends AppCompatActivity {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build();
-        notificationMananger.notify(1, notification);
+        notificationMananger.notify(2, notification);
     }
-
     @Override
     protected void onStop(){
         super.onStop();
@@ -250,9 +271,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(STATUS, mTextViewStatus.getText().toString());
         editor.apply();
 
-        if(mCountDownTimer != null){
-            mCountDownTimer.cancel();
-        }
+
     }
 
     @Override
