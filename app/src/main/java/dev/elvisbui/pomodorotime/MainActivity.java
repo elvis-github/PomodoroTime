@@ -1,11 +1,14 @@
 package dev.elvisbui.pomodorotime;
 
 import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.CountDownTimer;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +21,7 @@ import java.util.Locale;
 import static dev.elvisbui.pomodorotime.NotificationsWrapper.CHANNEL_1_ID;
 
 public class MainActivity extends AppCompatActivity {
+                                                            //03 Seconds = 3000
     private static final long POMODORO = 1500000;           //25 Minutes = 1500000
     private static final long SHORT_BREAK = 300000;         //05 Minutes = 300000
     private static final long LONG_BREAK = 900000;          //15 Minutes = 900000
@@ -126,21 +130,24 @@ public class MainActivity extends AppCompatActivity {
                 mAlarm = MediaPlayer.create(this, R.raw.break_alarm);
         mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
         mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 500) {
+
             @Override
             public void onTick(long millisUntilFinished) {
                 mTimeLeftInMillis = millisUntilFinished;
                 updateCountDownText();
+                startService("Timer Started\n" + mTextViewCountDown.getText().toString());
             }
 
             @Override
             public void onFinish() {
-                mAlarm.start();
+                stopService();
                 sendOnChannel1();
+                mAlarm.start();
                 mTimerRunning = false;
                 updateButtons();
             }
         }.start();
-
+        startService("Timer Started");
         mTimerRunning = true;
         updateButtons();
     }
@@ -166,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             mAlarm.release();
             mAlarm = null;
         }
-
+        stopService();
         mTimeLeftInMillis = mStartTimeInMillis;
         updateCountDownText();
         updateButtons();
@@ -206,6 +213,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void startService(String message){
+
+        Intent serviceIntent = new Intent(this, NotificationService.class);
+        serviceIntent.putExtra("inputExtra" , message);
+
+        if(mTimerRunning)
+            serviceIntent.putExtra("timerStatus", true);
+        else
+            serviceIntent.putExtra("timerStatus", false);
+
+        ContextCompat.startForegroundService(this, serviceIntent);
+    }
+
+    public void stopService(){
+        Intent serviceIntent = new Intent(this, NotificationService.class);
+        stopService(serviceIntent);
+    }
+
     /**
      * sendOnChannel1()
      * Sends a message on Notification Channel 1 - Alarms
@@ -213,6 +238,10 @@ public class MainActivity extends AppCompatActivity {
      * up
      */
     public void sendOnChannel1(){
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
         String content = "Your time is up!";
         if(!mPomodoro)
             content = "Your break is up!";
@@ -224,11 +253,11 @@ public class MainActivity extends AppCompatActivity {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setSound(null,0)
+                .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build();
-        notificationMananger.notify(1, notification);
+        notificationMananger.notify(2, notification);
     }
-
     @Override
     protected void onStop(){
         super.onStop();
@@ -242,9 +271,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(STATUS, mTextViewStatus.getText().toString());
         editor.apply();
 
-        if(mCountDownTimer != null){
-            mCountDownTimer.cancel();
-        }
+
     }
 
     @Override
