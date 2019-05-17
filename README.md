@@ -2,7 +2,8 @@
 A tomato timer app based on the Pomodoro Technique created as a project to learn more Android Developmen by an amateur
 android developer.
 
->Author: Elvis Bui
+>Author: **Elvis Bui**   
+>An aspiring software engineer and soon-to-be graduate of the University of Georgia with a Bachelor of Science in Computer Science
 
 I am creating this app to improve my skills regarding Android development and to provide myself with a timer
 to help my time management. This timer is based off of Francesco Cirillo's "Pomodoro Technique" that begins
@@ -17,6 +18,7 @@ Find out more about the Pomodoro Technique [here](https://en.wikipedia.org/wiki/
 * Martina Smith for introducing the Pomodoro Technique to me.
 * Krzysztof J. Kochut for teaching me the fundamentals of Android Development at the University of Georgia.
 * Sarah L. Smith for being the love of my life, recommending me to create this app, and providing useful user stories.
+* [StackOverflow](https://stackoverflow.com/) for helping me solve issues and keeping me sane in my software developing career.
 
 ## Trello Board
 See what I'm working on here: https://trello.com/b/M85vV2Ye/pomodorotime
