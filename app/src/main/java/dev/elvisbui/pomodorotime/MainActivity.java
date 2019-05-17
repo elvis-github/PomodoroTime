@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String DEBUG_TAG = "MainActivity";
                                                             //03 Seconds = 3000
-    private static final long POMODORO = 1500000;           //25 Minutes = 1500000
+    private static final long POMODORO = 3000;           //25 Minutes = 1500000
     private static final long SHORT_BREAK = 300000;         //05 Minutes = 300000
     private static final long LONG_BREAK = 900000;          //15 Minutes = 900000
 
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
         //CREATING THE ALARM SOUND
 
-        if(mAlarm == null) {
+        if (mAlarm == null) {
             mAlarm = new MediaPlayer();
             mAlarm.setAudioStreamType(AudioManager.STREAM_ALARM);
             try {
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                     mAlarm.setDataSource(this, Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.break_alarm));
 
                 mAlarm.prepare();
-            }catch (Exception e){
+            } catch (Exception e) {
                 Log.d(DEBUG_TAG, e.toString());
             }
         }
@@ -154,6 +154,12 @@ public class MainActivity extends AppCompatActivity {
         // TIMER LOGIC
 
         mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
+        if(mCountDownTimer!=null){
+            mCountDownTimer.cancel();
+            mCountDownTimer = null;
+        }
+
+        stopPersistantNotification();
         mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 500) {
 
             @Override
@@ -172,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 updateButtons();
             }
         }.start();
+
         startPersistantNotification("Timer Started");
         mTimerRunning = true;
         updateButtons();
@@ -179,9 +186,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void pauseTimer() {
+        Log.d(DEBUG_TAG, "pauseTimer()");
+        stopPersistantNotification();
         mCountDownTimer.cancel();
         mTimerRunning = false;
         updateButtons();
+        startPersistantNotification("Timer Paused");
     }
 
     private void resetTimer() {
@@ -338,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume() {;
         Log.d( DEBUG_TAG, "MainActivity.onResume()" );
         super.onResume();
     }
