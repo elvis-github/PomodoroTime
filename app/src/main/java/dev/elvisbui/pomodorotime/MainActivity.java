@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     
     private static MediaPlayer mAlarm;
 
-    private NotificationManagerCompat notificationMananger;
+    private NotificationManagerCompat notificationManager;
 
 
     @Override
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonLong = findViewById(R.id.longButton);
         mTextViewStatus = findViewById(R.id.status);
 
-        notificationMananger = NotificationManagerCompat.from(this);
+        notificationManager = NotificationManagerCompat.from(this);
 
         mButtonStartPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,27 +123,36 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /*  //////////////////////////////////////////////
+     * TIMER METHODS SECTION
+     */ //////////////////////////////////////////////
+
     private void setTimer(long milliseconds){
         mStartTimeInMillis = milliseconds;
         resetTimer();
     }
 
     private void startTimer() {
+
+        //CREATING THE ALARM SOUND
+
         if(mAlarm == null) {
             mAlarm = new MediaPlayer();
             mAlarm.setAudioStreamType(AudioManager.STREAM_ALARM);
             try {
                 if (mPomodoro)
                     mAlarm.setDataSource(this, Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.pomodoro_alarm));
-                    //mAlarm = MediaPlayer.create(this, R.raw.pomodoro_alarm);
                 else
                     mAlarm.setDataSource(this, Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.break_alarm));
-                //mAlarm = MediaPlayer.create(this, R.raw.break_alarm);
+
                 mAlarm.prepare();
             }catch (Exception e){
                 Log.d(DEBUG_TAG, e.toString());
             }
         }
+
+        // TIMER LOGIC
+
         mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
         mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 500) {
 
@@ -151,43 +160,23 @@ public class MainActivity extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {
                 mTimeLeftInMillis = millisUntilFinished;
                 updateCountDownText();
-                startService("Timer Started\n" + mTextViewCountDown.getText().toString());
+                startPersistantNotification("Timer Started\n" + mTextViewCountDown.getText().toString());
             }
 
             @Override
             public void onFinish() {
-                stopService();
-                sendOnChannel1();
+                stopPersistantNotification();
+                sendEndNotification();
                 mAlarm.start();
-
                 mTimerRunning = false;
                 updateButtons();
-                mAlarm.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        if(!mAlarm.isPlaying())
-                            mAlarm.release();
-                        else{
-                            mAlarm.stop();
-                            mAlarm.release();
-                        }
-                    }
-                });
             }
         }.start();
-        startService("Timer Started");
+        startPersistantNotification("Timer Started");
         mTimerRunning = true;
         updateButtons();
     }
 
-    private void updateCountDownText() {
-        int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
-        int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
-
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-
-        mTextViewCountDown.setText(timeLeftFormatted);
-    }
 
     private void pauseTimer() {
         mCountDownTimer.cancel();
@@ -197,14 +186,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void resetTimer() {
         if(mAlarm != null){
-            mAlarm.stop();
+            if(mAlarm.isPlaying())
+                mAlarm.stop();
+            mAlarm.reset();
             mAlarm.release();
             mAlarm = null;
         }
-        stopService();
+        stopPersistantNotification();
+        notificationManager.cancel(2);
         mTimeLeftInMillis = mStartTimeInMillis;
         updateCountDownText();
         updateButtons();
+    }
+
+    /*  //////////////////////////////////////////////
+     * UPDATE TEXT SECTION
+     */ //////////////////////////////////////////////
+
+    private void updateCountDownText() {
+        int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
+        int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
+
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+
+        mTextViewCountDown.setText(timeLeftFormatted);
     }
 
     private void updateButtons(){
@@ -241,7 +246,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void startService(String message){
+    /*  //////////////////////////////////////////////
+     * NOTIFICATIONS SECTION
+     */ //////////////////////////////////////////////
+
+    public void startPersistantNotification(String message){
 
         Intent serviceIntent = new Intent(this, NotificationService.class);
         serviceIntent.putExtra("inputExtra" , message);
@@ -254,18 +263,12 @@ public class MainActivity extends AppCompatActivity {
         ContextCompat.startForegroundService(this, serviceIntent);
     }
 
-    public void stopService(){
+    public void stopPersistantNotification(){
         Intent serviceIntent = new Intent(this, NotificationService.class);
         stopService(serviceIntent);
     }
 
-    /**
-     * sendOnChannel1()
-     * Sends a message on Notification Channel 1 - Alarms
-     * notifying user if their pomodoro timer or break is
-     * up
-     */
-    public void sendOnChannel1(){
+    public void sendEndNotification(){
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
@@ -284,8 +287,13 @@ public class MainActivity extends AppCompatActivity {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build();
-        notificationMananger.notify(2, notification);
+        notificationManager.notify(2, notification);
     }
+
+    /*  //////////////////////////////////////////////
+     * CALLBACKS SECTION
+     */ //////////////////////////////////////////////
+
     @Override
     protected void onStop(){
         Log.d( DEBUG_TAG, "MainActivity.onStop()" );
