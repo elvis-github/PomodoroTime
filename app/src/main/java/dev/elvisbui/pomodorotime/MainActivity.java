@@ -4,13 +4,16 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.CountDownTimer;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,10 +24,12 @@ import java.util.Locale;
 import static dev.elvisbui.pomodorotime.NotificationsWrapper.CHANNEL_1_ID;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String DEBUG_TAG = "MainActivity";
                                                             //03 Seconds = 3000
-    private static final long POMODORO = 1500000;           //25 Minutes = 1500000
-    private static final long SHORT_BREAK = 300000;         //05 Minutes = 300000
-    private static final long LONG_BREAK = 900000;          //15 Minutes = 900000
+    private static final long POMODORO = 10000;           //25 Minutes = 1500000
+    private static final long SHORT_BREAK = 3000;         //05 Minutes = 300000
+    private static final long LONG_BREAK = 3000;          //15 Minutes = 900000
 
     private static final String START_TIME = "startTimeInMillis";
     private static final String PREFS = "prefs";
@@ -51,13 +56,14 @@ public class MainActivity extends AppCompatActivity {
     private long mTimeLeftInMillis;
     private long mEndTime;
     
-    private MediaPlayer mAlarm;
+    private static MediaPlayer mAlarm;
 
-    private NotificationManagerCompat notificationMananger;
+    private NotificationManagerCompat notificationManager;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d( DEBUG_TAG, "MainActivity.onCreate()" );
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
@@ -68,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonLong = findViewById(R.id.longButton);
         mTextViewStatus = findViewById(R.id.status);
 
-        notificationMananger = NotificationManagerCompat.from(this);
+        notificationManager = NotificationManagerCompat.from(this);
 
         mButtonStartPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,17 +123,36 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /*  //////////////////////////////////////////////
+     * TIMER METHODS SECTION
+     */ //////////////////////////////////////////////
+
     private void setTimer(long milliseconds){
         mStartTimeInMillis = milliseconds;
         resetTimer();
     }
 
     private void startTimer() {
-        if(mAlarm == null)
-            if(mPomodoro)
-                mAlarm = MediaPlayer.create(this, R.raw.pomodoro_alarm);
-            else
-                mAlarm = MediaPlayer.create(this, R.raw.break_alarm);
+
+        //CREATING THE ALARM SOUND
+
+        if(mAlarm == null) {
+            mAlarm = new MediaPlayer();
+            mAlarm.setAudioStreamType(AudioManager.STREAM_ALARM);
+            try {
+                if (mPomodoro)
+                    mAlarm.setDataSource(this, Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.pomodoro_alarm));
+                else
+                    mAlarm.setDataSource(this, Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.break_alarm));
+
+                mAlarm.prepare();
+            }catch (Exception e){
+                Log.d(DEBUG_TAG, e.toString());
+            }
+        }
+
+        // TIMER LOGIC
+
         mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
         mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 500) {
 
@@ -135,31 +160,23 @@ public class MainActivity extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {
                 mTimeLeftInMillis = millisUntilFinished;
                 updateCountDownText();
-                startService("Timer Started\n" + mTextViewCountDown.getText().toString());
+                startPersistantNotification("Timer Started\n" + mTextViewCountDown.getText().toString());
             }
 
             @Override
             public void onFinish() {
-                stopService();
-                sendOnChannel1();
+                stopPersistantNotification();
+                sendEndNotification();
                 mAlarm.start();
                 mTimerRunning = false;
                 updateButtons();
             }
         }.start();
-        startService("Timer Started");
+        startPersistantNotification("Timer Started");
         mTimerRunning = true;
         updateButtons();
     }
 
-    private void updateCountDownText() {
-        int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
-        int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
-
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-
-        mTextViewCountDown.setText(timeLeftFormatted);
-    }
 
     private void pauseTimer() {
         mCountDownTimer.cancel();
@@ -169,14 +186,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void resetTimer() {
         if(mAlarm != null){
-            mAlarm.stop();
+            if(mAlarm.isPlaying())
+                mAlarm.stop();
+            mAlarm.reset();
             mAlarm.release();
             mAlarm = null;
         }
-        stopService();
+        stopPersistantNotification();
+        notificationManager.cancel(2);
         mTimeLeftInMillis = mStartTimeInMillis;
         updateCountDownText();
         updateButtons();
+    }
+
+    /*  //////////////////////////////////////////////
+     * UPDATE TEXT SECTION
+     */ //////////////////////////////////////////////
+
+    private void updateCountDownText() {
+        int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
+        int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
+
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+
+        mTextViewCountDown.setText(timeLeftFormatted);
     }
 
     private void updateButtons(){
@@ -213,7 +246,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void startService(String message){
+    /*  //////////////////////////////////////////////
+     * NOTIFICATIONS SECTION
+     */ //////////////////////////////////////////////
+
+    public void startPersistantNotification(String message){
 
         Intent serviceIntent = new Intent(this, NotificationService.class);
         serviceIntent.putExtra("inputExtra" , message);
@@ -226,18 +263,12 @@ public class MainActivity extends AppCompatActivity {
         ContextCompat.startForegroundService(this, serviceIntent);
     }
 
-    public void stopService(){
+    public void stopPersistantNotification(){
         Intent serviceIntent = new Intent(this, NotificationService.class);
         stopService(serviceIntent);
     }
 
-    /**
-     * sendOnChannel1()
-     * Sends a message on Notification Channel 1 - Alarms
-     * notifying user if their pomodoro timer or break is
-     * up
-     */
-    public void sendOnChannel1(){
+    public void sendEndNotification(){
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
@@ -256,10 +287,16 @@ public class MainActivity extends AppCompatActivity {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build();
-        notificationMananger.notify(2, notification);
+        notificationManager.notify(2, notification);
     }
+
+    /*  //////////////////////////////////////////////
+     * CALLBACKS SECTION
+     */ //////////////////////////////////////////////
+
     @Override
     protected void onStop(){
+        Log.d( DEBUG_TAG, "MainActivity.onStop()" );
         super.onStop();
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -276,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        Log.d( DEBUG_TAG, "MainActivity.onStart()" );
         super.onStart();
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         mStartTimeInMillis = prefs.getLong(START_TIME, POMODORO);
@@ -297,5 +335,29 @@ public class MainActivity extends AppCompatActivity {
                 startTimer();
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d( DEBUG_TAG, "MainActivity.onResume()" );
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d( DEBUG_TAG, "MainActivity.onPause()" );
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d( DEBUG_TAG, "MainActivity.onDestroy()" );
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.d( DEBUG_TAG, "MainActivity.onRestart()" );
+        super.onRestart();
     }
 }
