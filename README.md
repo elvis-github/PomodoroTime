@@ -2,6 +2,8 @@
 A tomato timer app based on the Pomodoro Technique created as a project to learn more Android Developmen by an amateur
 android developer.
 
+**This project is currently INACTIVE until I have time to revisit Android Development**
+
 >Author: **Elvis Bui**   
 >An aspiring software engineer and soon-to-be graduate of the University of Georgia with a Bachelor of Science in Computer Science
 
